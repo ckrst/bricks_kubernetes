@@ -102,6 +102,39 @@ output "db_service_ip" {
   value = "${kubernetes_service.bricks_database_service.spec.0.cluster_ip}"
 }
 
+resource "kubernetes_ingress" "db_ingress" {
+  metadata {
+    name = "db-ingress"
+    namespace = "${kubernetes_namespace.bricks_namespace.metadata.0.name}"
+  }
+
+  spec {
+    backend {
+      service_name = "bricks-db-service"
+      service_port = 3306
+    }
+
+    rule {
+      host = "bricks.otacon.local"
+
+      http {
+        path {
+          backend {
+            service_name = "bricks-db-service"
+            service_port = 3306
+          }
+
+          # path = "/db"
+        }
+      }
+    }
+
+    # tls {
+    #   secret_name = "tls-secret"
+    # }
+  }
+}
+
 # resource "kubernetes_persistent_volume_claim" "bricks_database_persistent_volume_claim" {
 #   metadata {
 #     name = "bricks-volume-claim"
